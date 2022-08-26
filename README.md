@@ -1,7 +1,8 @@
 # Fast Dungeon
 Dungeon crawl game that runs entirely in your browser. Suitable for PC or mobile.
-![Fast Dungeon Splash Page](https://markb-nyp.github.io/fast-dungeon/Resources/FD_splash_1.png)
-Play it here: 
+<img src="https://markb-nyp.github.io/fast-dungeon/Resources/FD_splash_1.png" width="100" height="100">
+
+Play it here: [https://markb-nyp.github.io/fast-dungeon/](https://markb-nyp.github.io/fast-dungeon/)
 
 Suggestions, collaborations, questions, bug reports, please get in touch.
 [Click here for Google Forms link.](https://docs.google.com/forms/d/e/1FAIpQLSc7h9e_N2cWjd-fMvnNISYVUqeP_hz99eK6J_UuMZJKKMToqw/viewform)
