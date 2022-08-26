@@ -3,7 +3,7 @@ Dungeon crawl game that runs entirely in your browser. Suitable for PC or mobile
 Play it here: 
 
 Suggestions, collaborations, questions, bug reports, please get in touch.
-[CLick here for Google Forms link](https://docs.google.com/forms/d/e/1FAIpQLSc7h9e_N2cWjd-fMvnNISYVUqeP_hz99eK6J_UuMZJKKMToqw/viewform)
+[Click here for Google Forms link.](https://docs.google.com/forms/d/e/1FAIpQLSc7h9e_N2cWjd-fMvnNISYVUqeP_hz99eK6J_UuMZJKKMToqw/viewform)
 
 ## Setting
 Welcome to the world of Fast Dungeon. Explore the dungeon, and collect 10 gold pieces to win. But watch out, many dangerous creatuers are lurking in the shadows.
