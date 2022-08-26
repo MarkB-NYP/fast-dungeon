@@ -1,0 +1,473 @@
+<html>
+<head>
+<title>FAST DUNGEON GAME</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+<style>
+    * {
+        color:white;
+        background-color:black;
+        font-family: "VT323";
+        font-size:1.15em;
+        text-align:center;
+    }
+    #gamearea{
+          display: flex;
+  justify-content: center;
+  align-items: center;
+        
+    }
+    
+    
+    button{
+        padding:3px;
+        background-color: goldenrod;
+            border-color: white;
+    border-style: solid;
+        border-width: 3px;
+    }
+    
+        button:hover{
+        background-color: darkgoldenrod;
+    }
+
+    .overlay{
+          position: fixed;
+  background-color: black;
+          top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+    }
+    
+    #preloader {
+
+  color:white;
+
+  z-index:99;
+  animation: preload 1.5s;
+}
+#preloader img {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+@keyframes preload {
+      0% {opacity:100%;}
+      30% {opacity:100%;}
+    100% {opacity:0%;}
+    
+}
+
+    .blinking {
+  animation: blinker 1s linear ;
+}
+
+@keyframes blinker {
+  0%,20%,40%,60%,80%,100% {opacity: 0;}
+  10%,30%,50%,70%,90% {opacity: 100;}
+    }
+    
+    .bouncing {
+    animation: bounce 1s linear;
+    }
+    
+  @keyframes bounce {
+   0%, 20%, 50%, 80%, 100% {transform: translateY(0);} 
+   40% {transform: translateY(-30px);} 
+   60% {transform: translateY(-15px);} 
+} 
+    
+        .crazyJumping {
+    animation: crazyJump 1.5s infinite;
+    }
+    
+  @keyframes crazyJump {
+   0%,100% {transform: translate(-20px, -10px) rotate(15deg);} 
+   10%,90% {transform: translate(0px, -5px) rotate(-15deg);} 
+   20%,80% {transform: translate(5px, 5px) rotate(20deg);} 
+         30%,70% {transform: translate(12px, 7px) rotate(-7deg);} 
+         40%,60% {transform: translate(5px, -1px) rotate(15deg);} 
+         50% {transform: translate(-2px, 10px) rotate(15deg);} 
+ 
+} 
+    input{
+        border-color:white;
+        border-style:solid;
+    }
+    
+    #cell1{
+        font-size:3vw;
+        width: 20vw;}
+        
+    #cell2{
+        width: 40vw;
+    }
+    
+    td{padding:10px;}
+    tr{
+display: flex;
+  justify-content: center;
+  align-items: center;
+        
+    }
+    table{
+        border-color: white;
+    }
+    
+    img {
+        height:200px;
+        background-color: transparent;
+    }
+
+    #cell3,#cell4 {width:30vw;}
+    
+    #title{
+        font-size:3em;
+        user-select:none;
+        
+    }
+    </style>
+
+</head>
+
+
+<body>
+    <i style='font-size:0.8em;'>Version 0.5.1</i>
+    <div class='overlay' id='preloader'></div>
+    <div id='gamearea'>
+        
+        <div id='gametext' style='width:60vw;margin:0 auto;'>
+            
+        <p style='margin-right:30%;'>Baby Alien Games presents...</p>
+            <h1 id='title'><span style='color:goldenrod' class='blinking'>FAST</span> <span>DUNGEON</span><img style='height:100px;' src="./Resources/Hero1.gif"></h1>
+            <br>
+            <label for="player_name">Player name:</label>
+<input type="text" value="Player1" id="player_name" name="player_name" maxlength="15" required=true placeholder="Type name here"><br><br>
+           
+            <button  onclick='setPlayerName()'>START GAME</button>
+            <br><br><button onclick='window.open("https://github.com/MarkB-NYP/fast-dungeon", "_blank").focus();'>ABOUT</button>
+        </div>
+        
+ 
+    <table id='gametable'><tobdy>
+        <tr id='row1'><td id='cell1'>
+            
+            </td>
+        
+        
+        <td id='cell2'></td></tr>
+        
+        <tr id="row2"><td id='cell3'></td>
+        <td id='cell4'></td>
+        </tr>
+        
+        </tobdy></table>
+            
+    </div>
+<!--    <footer style='margin-top:10px;'>&copy Super Cool Books 2022</footer>-->
+    <script>
+        var PlayerName = 'X';
+        var life = 10;
+        var shield = 3;
+        var gold = 0;
+        var room = 0;
+        var goldToWin = 10;
+        
+        function winCondition(){return (gold >= goldToWin)}
+        function loseCondition(){return (life == 0)}
+        
+        var gametext = document.getElementById('gametext');
+        var gametable = document.getElementById('gametable');
+        var cell1 = document.getElementById('cell1');
+        var cell2 = document.getElementById('cell2');
+        var cell3 = document.getElementById('cell3');
+        var cell4 = document.getElementById('cell4');
+        var row1 = document.getElementById('row1');
+        var row2 = document.getElementById('row2');
+        var roomGold=0;
+        var roomMonster = [];
+        var roomDesc = ["You walk down the corridor.","You go to the next room.","You notice some mud on the floor.","You venture deeper into the dungeon."];
+        var goldDesc = ["You see a pile of gold coins on the ground.", "On the ground, gold gleams.","You see gold.","You spot some gold."]
+        var monsterDesc = [[3,2,'a monstrous beast.','./Resources/Spider1.gif','THE BEAST'],[2,3,'a gigantic reptile.','./Resources/Lizard1.gif','THE REPTILE']] //shield, health, description,image,name
+        
+            function fadein() {document.getElementById('preloader').style.display='block'; setTimeout(function () {
+    document.getElementById('preloader').style.display='none';
+            }, 1200);}
+        
+    function escapeHtml(unsafe)
+{
+    return unsafe
+         .replace(/&/g, "&amp;")
+         .replace(/</g, "&lt;")
+         .replace(/>/g, "&gt;")
+         .replace(/"/g, "&quot;")
+         .replace(/'/g, "&#039;");
+ }
+        
+        function roll6dice() {
+  return Math.floor(Math.random() * (6 - 1 + 1)) + 1;
+            }
+        function isEmptyOrSpaces(str){
+    return str === null || str.match(/^ *$/) !== null;
+}
+        function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+        }
+            }
+        function delay(n) {  
+  n = n || 2000;
+  return new Promise(done => {
+    setTimeout(() => {
+      done();
+    }, n);
+  });
+        }
+        
+        function setPlayerName(){
+            name = document.getElementById("player_name").value;
+
+            if (isEmptyOrSpaces(name)){
+                window.alert("Name cannot be blank.")
+                
+            }
+             if (name=='/grey'){
+                
+                makGreyscale();
+                 window.alert("Greyscale mode enabled. Greyscale mode is an experimental feature.");
+                 document.getElementById("player_name").value='Dorian';
+            }
+            else{
+            var nameEscape = escapeHtml(name);
+            PlayerName = nameEscape;
+                
+            console.log("Success! Your name is ",PlayerName)
+            text3 =  text3.replace("YOURNAMEHERE",PlayerName)
+            fadein();
+            gametext.innerHTML = text2;}
+        }
+        
+        var gameRunning = true;
+        function gameover(state){
+            if (state == 'lose'){
+                
+            row2.innerHTML=`<button onclick='document.location.reload();'>Play Again?</button><span>&nbsp</span><button onclick='window.open("https://github.com/MarkB-NYP/fast-dungeon", "_blank").focus();'>ABOUT</button>`;
+            cell1.innerHTML='<p><img src="./Resources/Hero1.gif" style="transform: rotate(270deg);">' //create player stats panel
+            cell2.innerHTML='<p style="font-size:3vw;"><i>Thus ends the heroic saga of '+PlayerName+'.</i><br><br>You had '+gold.toString()+' Gold, and explored '+(room-1).toString()+' rooms.<p>' //create player stats panel
+            row1.innerHTML = cell1.outerHTML.toString()+cell2.outerHTML.toString();
+            }
+            else if (state == 'win'){
+            row2.innerHTML=`<button onclick='document.location.reload();'>Play Again?</button><span>&nbsp</span><button onclick='window.open("https://github.com/MarkB-NYP/fast-dungeon", "_blank").focus();'>ABOUT</button>`;
+            cell1.innerHTML='<p><img src="./Resources/Hero1.gif" class="crazyJumping">' //create player stats panel
+            cell2.innerHTML='<p style="font-size:3vw;"><i>Congratulations '+PlayerName+'! You\'re the Great Champion of Fast Dungeon. Lots of feasting and dancing all night.<br>You\'re a legend. </i><br><br>You had '+gold.toString()+' Gold,  and explored '+(room-1).toString()+' rooms.<p>' //create player stats panel
+            row1.innerHTML = cell1.outerHTML.toString()+cell2.outerHTML.toString();
+            }
+            
+        }
+        
+        var acceptCombatAction = false;
+        var combatBanner = '';
+        
+        function doCombat(AttackerSkill,VictimLife,AttackerName,VictimName){
+            acceptCombatAction = false;
+            var result = false;
+            roll = roll6dice();
+            if (roll > AttackerSkill){
+                combatBanner='<p style="font-size:3vw;color:red;"><i>'+AttackerName+' rolls '+roll.toString()+'. The hit succeeds.</i><br>'+VictimName+' loses 1 life.</p>';
+                result=true;
+            }
+            else{
+                combatBanner='<p id="banner" style="font-size:3vw;color:green;"><i>'+AttackerName+' rolled '+roll.toString()+'. The hit misses.</i><br>'+VictimName+' is safe... for now.</p>';
+                result=false;
+            }
+            
+ 
+            row2.innerHTML=combatBanner;
+            
+
+            row2.classList.add("blinking");
+            setTimeout(function(){row2.classList.remove('blinking')},200)
+//            if (life == 0){console.log('Player life is 0.')}
+//            console.log(combatBanner);
+            return result;
+        }
+        
+
+        
+        function updateStats(CELL){
+            cell1.innerHTML='<p><i style="font-size:2vw;">'+PlayerName+'</i><br>GOLD — '+gold.toString()+'<br>SHIELD — '+shield.toString()+'/6<br>LIFE — '+life.toString()+'/10<img src="./Resources/Hero1.gif"><p>' //create player stats panel
+             cell2.innerHTML="<p style='font-size:3vw;'><i>You see "+roomMonster[2]+"</i><br><br>SHIELD — "+roomMonster[0].toString()+"/6<br>LIFE — "+roomMonster[1].toString()+"<br><img src='"+roomMonster[3]+"'></p>";
+            
+            CELL.classList.add("blinking");
+            setTimeout(function(){CELL.classList.remove('blinking')},500)
+            row1.innerHTML = cell1.outerHTML.toString()+cell2.outerHTML.toString();
+        }
+        
+        function resetCombatScene(){
+            acceptCombatAction=true;
+            cell3.innerHTML="<button id='evade' onclick='evade();'>Evade</button>";
+            cell4.innerHTML="<button id='attack' onclick='attack()'>Attack</button>";
+            row2.innerHTML = cell3.outerHTML.toString()+cell4.outerHTML.toString();
+                
+        }
+        
+        async function evade(){
+            console.log('evading');
+            acceptCombatAction=false;
+            var loss = Math.ceil(roll6dice()/2) //lose 1 to 3 gold.
+            
+            if (gold-loss < 0){
+                loss=gold;}
+            gold -= loss
+            updateStats(cell1)
+            evadeBanner='<p style="font-size:3vw;color:red;">'+PlayerName+' loses '+loss+' gold while evading.</p>';
+            row2.innerHTML=evadeBanner;
+            row2.classList.add("blinking");
+            setTimeout(function(){row2.classList.remove('blinking')},250);
+            roomMonster=[];
+            if (gameRunning == true){setTimeout(nextLevel,4000);}
+        }
+        
+        async function attack(){
+            acceptCombatAction=false;
+            console.log('attacking');
+            acceptCombatAction=false;
+ 
+            
+            if (doCombat(shield,roomMonster[1],PlayerName,roomMonster[4]) == true){
+                roomMonster[1] -= 1;
+                updateStats(cell2);
+
+            };
+            await delay(4000);
+            
+            if (roomMonster[1]==0){ //have we defeated the monster?
+                console.log('Monster Defeated!');
+                var shieldreward = (roll6dice()%2);
+                cell2.innerHTML="<p><i style='font-size:3vw;'>You have defeated "+roomMonster[4]+"</i><br><br>Gain "+shieldreward+" shield.</p>";
+                shield += shieldreward;
+                
+                //make player bounce :)
+                cell1.innerHTML='<p><i style="font-size:2vw;">'+PlayerName+'</i><br>GOLD — '+gold.toString()+'<br>SHIELD — '+shield.toString()+'/6<br>LIFE — '+life.toString()+'/10<img src="./Resources/Hero1.gif"><p>' //create player stats panel
+                cell1.classList.add("bouncing");
+                setTimeout(function(){cell1.classList.remove('bouncing')},600)
+                
+                row1.innerHTML = cell1.outerHTML.toString()+cell2.outerHTML.toString();
+                
+                await delay(4000);
+                nextLevel();
+            }
+            
+            else{ //monster gets to attack player
+            if (doCombat(roomMonster[0],life,roomMonster[4],PlayerName) == true){
+                life -= 1;
+                updateStats(cell1);
+            };
+            await delay(4000);
+           
+             if (loseCondition() == true){ //has player died?
+                 console.log('Player died!');
+                var shieldreward = (roll6dice()%2);
+                cell1.innerHTML="<p><i style='font-size:3vw;'>You were knocked out by "+roomMonster[4]+"</i></p>";
+                shield += shieldreward;
+                
+                //make player bounce :)
+               
+                cell2.classList.add("bouncing");
+                setTimeout(function(){cell2.classList.remove('bouncing')},600)
+                
+                row1.innerHTML = cell1.outerHTML.toString()+cell2.outerHTML.toString();
+                
+                await delay(4000);
+                gameRunning = false;
+                gameover('lose');
+             }
+                
+            if (gameRunning == true){resetCombatScene();}
+        }
+        }
+        
+        
+        
+        
+        
+        
+        function encounter(){
+            cell1.innerHTML='<p><i style="font-size:2vw;">'+PlayerName+'</i><br>GOLD — '+gold.toString()+'<br>SHIELD — '+shield.toString()+'/6<br>LIFE — '+life.toString()+'/10<img src="./Resources/Hero1.gif"><p>' //create player stats panel
+            roomtype = roll6dice();
+            console.log(roomtype);
+            if (roomtype < 3){ //Gold room
+                roomGold = roll6dice();
+                shuffleArray(goldDesc)
+                row2.innerHTML="<button  onclick='gold+=roomGold;nextLevel();'>Collect gold</button>";
+
+                cell2.innerHTML="<p><i style='font-size:3vw;'>"+goldDesc[0]+"</i><br><br>Gain "+roomGold.toString()+" gold.</p>";
+                row1.innerHTML = cell1.outerHTML.toString()+cell2.outerHTML.toString();
+            }
+            else{ // Monster room
+                shuffleArray(monsterDesc);
+                roomMonster = monsterDesc[0].map((x) => x); //safely make duplicate of the list, instead of mapping/assignment
+                
+
+                cell2.innerHTML="<p style='font-size:3vw;'><i>You see "+roomMonster[2]+"</i><br><br>SHIELD — "+roomMonster[0].toString()+"/6<br>LIFE — "+roomMonster[1].toString()+"<br><img src='"+roomMonster[3]+"'></p>";
+                row1.innerHTML = cell1.outerHTML.toString()+cell2.outerHTML.toString();
+                acceptCombatAction=true;
+                cell3.innerHTML="<button id='evade' onclick='evade();'>Evade</button>";
+                cell4.innerHTML="<button id='attack' onclick='attack()'>Attack</button>";
+                row2.innerHTML = cell3.outerHTML.toString()+cell4.outerHTML.toString();
+                
+                
+            }
+            
+            
+        }
+        
+        function nextLevel(){
+            fadein();
+            gametable.style.display='block';
+            room += 1;
+            shuffleArray(roomDesc);
+              if (winCondition() == true){ //has player died?
+                gameRunning = false;
+                gameover('win');
+             }
+            else{
+            
+            row2.innerHTML="<button onclick='fadein();encounter();'>Enter</button>";
+            row1.innerHTML="<p style='margin:100px;'><i style='font-size:0.8em'>Room "+room+"</i><br>"+roomDesc[0]+"</p>";}
+            
+        }
+        
+//        gametext.remove(); 
+//       nextLevel()
+          
+     function makGreyscale(){
+        var css = '* { background-color: #6f6f6f !important; color: white !important; font-family:serif !important;font-size:1.13em !important;} img {filter: saturate(0);}',
+    head = document.head || document.getElementsByTagName('head')[0],
+    style = document.createElement('style');
+
+    head.appendChild(style);
+
+    style.type = 'text/css';
+    if (style.styleSheet){
+      // This is required for IE8 and below.
+      style.styleSheet.cssText = css;
+    } else {
+      style.appendChild(document.createTextNode(css));
+    }}
+        
+                    fadein();
+                    gametable.style.display='none';
+    var text2 = `<p>Your stats:<br /><span style='color:goldenrod'>GOLD</span> &mdash; Zero for now. Get 10 to win.<br /><br /><span style='color:goldenrod'>SHIELD</span> &mdash; 3/6. Ignore damage from attack rolls up to this number.<br /><br /><span style='color:goldenrod'>LIFE</span> &mdash; 10/10. Once you're down to 0 points, you're too weak to continue</p><button  onclick='fadein();gametext.innerHTML = text3;'>CONTINUE</button>`;
+    
+    var text3 = `<p>A villager blindfolds you and takes you to a spot inside the dungeon. She says, \"Count to ten, and then remove your blindfold. Good luck, <span style='color:goldenrod'>YOURNAMEHERE</span>.\"</p><p>You count and then with shaking hands you remove the blindfold.</p><p>Begin!</p><button  onclick='fadein();gametext.remove();nextLevel();'>START</button>`;
+
+    
+    </script>
+
+</body>
+
+</html>
