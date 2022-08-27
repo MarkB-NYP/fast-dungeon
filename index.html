@@ -1,6 +1,6 @@
 <html>
 <head>
-<title>FAST DUNGEON GAME</title>
+<title>Fast Dungeon Game</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
@@ -119,6 +119,8 @@ display: flex;
     img {
         height:200px;
         background-color: transparent;
+        
+/*        filter: hue-rotate(40deg) brightness(5);*/
     }
 
     #cell3,#cell4 {width:30vw;}
@@ -128,13 +130,29 @@ display: flex;
         user-select:none;
         
     }
+    
+    
+    .rainbow_hue_rotate {
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  -webkit-animation: rainbow_hue_rotate 10s infinite linear;
+
+}
+@-webkit-keyframes rainbow_hue_rotate {
+  from {
+    -webkit-filter: hue-rotate(0deg);
+  }
+  to {
+    -webkit-filter: hue-rotate(-360deg);
+  }
+}
     </style>
 
 </head>
 
 
 <body>
-    <i style='font-size:0.8em;'>Version 0.5.1</i>
+    <i style='font-size:0.8em;'>Version 0.5.2</i>
     <div class='overlay' id='preloader'></div>
     <div id='gamearea'>
         
@@ -143,8 +161,8 @@ display: flex;
         <p style='margin-right:30%;'>Baby Alien Games presents...</p>
             <h1 id='title'><span style='color:goldenrod' class='blinking'>FAST</span> <span>DUNGEON</span><img style='height:100px;' src="./Resources/Hero1.gif"></h1>
             <br>
-            <label for="player_name">Player name:</label>
-<input type="text" value="Player1" id="player_name" name="player_name" maxlength="15" required=true placeholder="Type name here"><br><br>
+            <label for="player_name">Character name:</label>
+<input type="text" id="player_name" name="player_name" maxlength="15" required=true placeholder="Type name here"><br><br>
            
             <button  onclick='setPlayerName()'>START GAME</button>
             <br><br><button onclick='window.open("https://github.com/MarkB-NYP/fast-dungeon", "_blank").focus();'>ABOUT</button>
@@ -170,7 +188,7 @@ display: flex;
     <script>
         var PlayerName = 'X';
         var life = 10;
-        var shield = 3;
+        var shield = 2;
         var gold = 0;
         var room = 0;
         var goldToWin = 10;
@@ -189,8 +207,8 @@ display: flex;
         var roomGold=0;
         var roomMonster = [];
         var roomDesc = ["You walk down the corridor.","You go to the next room.","You notice some mud on the floor.","You venture deeper into the dungeon."];
-        var goldDesc = ["You see a pile of gold coins on the ground.", "On the ground, gold gleams.","You see gold.","You spot some gold."]
-        var monsterDesc = [[3,2,'a monstrous beast.','./Resources/Spider1.gif','THE BEAST'],[2,3,'a gigantic reptile.','./Resources/Lizard1.gif','THE REPTILE']] //shield, health, description,image,name
+        var goldDesc = ["You see a pile of gold pieces on the ground.", "On the ground, gold gleams.","You see gold.","You spot some gold."]
+        var monsterDesc = [[3,2,'a monstrous spider.','./Resources/Spider1.gif','Spider'],[2,3,'a gigantic reptile.','./Resources/Lizard1.gif','Reptile']] //shield, health, description,image,name
         
             function fadein() {document.getElementById('preloader').style.display='block'; setTimeout(function () {
     document.getElementById('preloader').style.display='none';
@@ -229,17 +247,18 @@ display: flex;
         
         function setPlayerName(){
             name = document.getElementById("player_name").value;
-
-            if (isEmptyOrSpaces(name)){
-                window.alert("Name cannot be blank.")
-                
-            }
-             if (name=='/grey'){
+            if (name=='/grey'){
                 
                 makGreyscale();
                  window.alert("Greyscale mode enabled. Greyscale mode is an experimental feature.");
                  document.getElementById("player_name").value='Dorian';
+                return
             }
+            if (isEmptyOrSpaces(name)){
+                window.alert("Name cannot be blank.")
+                
+            }
+             
             else{
             var nameEscape = escapeHtml(name);
             PlayerName = nameEscape;
@@ -262,7 +281,7 @@ display: flex;
             else if (state == 'win'){
             row2.innerHTML=`<button onclick='document.location.reload();'>Play Again?</button><span>&nbsp</span><button onclick='window.open("https://github.com/MarkB-NYP/fast-dungeon", "_blank").focus();'>ABOUT</button>`;
             cell1.innerHTML='<p><img src="./Resources/Hero1.gif" class="crazyJumping">' //create player stats panel
-            cell2.innerHTML='<p style="font-size:3vw;"><i>Congratulations '+PlayerName+'! You\'re the Great Champion of Fast Dungeon. Lots of feasting and dancing all night.<br>You\'re a legend. </i><br><br>You had '+gold.toString()+' Gold,  and explored '+(room-1).toString()+' rooms.<p>' //create player stats panel
+            cell2.innerHTML='<p style="font-size:3vw;"><i>Congratulations '+PlayerName+'! You\'re the <span style=\'color:goldenrod\'>Great Champion of Fast Dungeon</span>. Lots of feasting and dancing all night.<br>You\'re a legend. </i><br><br>You had '+gold.toString()+' Gold,  and explored '+(room-1).toString()+' rooms.<p>' //create player stats panel
             row1.innerHTML = cell1.outerHTML.toString()+cell2.outerHTML.toString();
             }
             
@@ -271,16 +290,16 @@ display: flex;
         var acceptCombatAction = false;
         var combatBanner = '';
         
-        function doCombat(AttackerSkill,VictimLife,AttackerName,VictimName){
+        function doCombat(VictimShield,VictimLife,AttackerName,VictimName){
             acceptCombatAction = false;
             var result = false;
             roll = roll6dice();
-            if (roll > AttackerSkill){
-                combatBanner='<p style="font-size:3vw;color:red;"><i>'+AttackerName+' rolls '+roll.toString()+'. The hit succeeds.</i><br>'+VictimName+' loses 1 life.</p>';
+            if (roll > VictimShield){
+                combatBanner='<p style="font-size:3vw;color:red;"><i>'+AttackerName+' rolled a '+roll.toString()+'. The hit succeeds.</i><br>'+VictimName+' loses 1 life.</p>';
                 result=true;
             }
             else{
-                combatBanner='<p id="banner" style="font-size:3vw;color:green;"><i>'+AttackerName+' rolled '+roll.toString()+'. The hit misses.</i><br>'+VictimName+' is safe... for now.</p>';
+                combatBanner='<p id="banner" style="font-size:3vw;color:green;"><i>'+AttackerName+' rolled a '+roll.toString()+'. The hit misses.</i><br>'+VictimName+' is safe... for now.</p>';
                 result=false;
             }
             
@@ -299,7 +318,7 @@ display: flex;
         
         function updateStats(CELL){
             cell1.innerHTML='<p><i style="font-size:2vw;">'+PlayerName+'</i><br>GOLD — '+gold.toString()+'<br>SHIELD — '+shield.toString()+'/6<br>LIFE — '+life.toString()+'/10<img src="./Resources/Hero1.gif"><p>' //create player stats panel
-             cell2.innerHTML="<p style='font-size:3vw;'><i>You see "+roomMonster[2]+"</i><br><br>SHIELD — "+roomMonster[0].toString()+"/6<br>LIFE — "+roomMonster[1].toString()+"<br><img src='"+roomMonster[3]+"'></p>";
+             cell2.innerHTML="<p style='font-size:3vw;'><i style='color:red;'>You see "+roomMonster[2]+"</i><br><br>SHIELD — "+roomMonster[0].toString()+"/6<br>LIFE — "+roomMonster[1].toString()+"<br><img src='"+roomMonster[3]+"'></p>";
             
             CELL.classList.add("blinking");
             setTimeout(function(){CELL.classList.remove('blinking')},500)
@@ -328,6 +347,7 @@ display: flex;
             row2.classList.add("blinking");
             setTimeout(function(){row2.classList.remove('blinking')},250);
             roomMonster=[];
+            roomtype = roll6dice(); //redundancy, make sure room type is reset
             if (gameRunning == true){setTimeout(nextLevel,4000);}
         }
         
@@ -337,7 +357,7 @@ display: flex;
             acceptCombatAction=false;
  
             
-            if (doCombat(shield,roomMonster[1],PlayerName,roomMonster[4]) == true){
+            if (doCombat(roomMonster[0],roomMonster[1],PlayerName,roomMonster[4]) == true){
                 roomMonster[1] -= 1;
                 updateStats(cell2);
 
@@ -346,8 +366,17 @@ display: flex;
             
             if (roomMonster[1]==0){ //have we defeated the monster?
                 console.log('Monster Defeated!');
-                var shieldreward = (roll6dice()%2);
-                cell2.innerHTML="<p><i style='font-size:3vw;'>You have defeated "+roomMonster[4]+"</i><br><br>Gain "+shieldreward+" shield.</p>";
+                var shieldreward = 1; //flat 1 shield for each victory
+                cell2.innerHTML="<p><i style='font-size:3vw;'>You have defeated the "+roomMonster[4]+".</i><br><br>Gain "+shieldreward+" shield.</p>";
+                
+                if (shield==5){// no reward if shield already 5
+                    shieldreward=0;
+                    gold+=1; // get 1 gold instead
+                    cell2.innerHTML="<p><i style='font-size:3vw;'>You have defeated the "+roomMonster[4]+".</i><br><br>Gain 1 gold.</p>";          
+                              } 
+                
+                
+                
                 shield += shieldreward;
                 
                 //make player bounce :)
@@ -362,7 +391,7 @@ display: flex;
             }
             
             else{ //monster gets to attack player
-            if (doCombat(roomMonster[0],life,roomMonster[4],PlayerName) == true){
+            if (doCombat(shield,life,roomMonster[4],PlayerName) == true){
                 life -= 1;
                 updateStats(cell1);
             };
@@ -412,7 +441,7 @@ display: flex;
                 roomMonster = monsterDesc[0].map((x) => x); //safely make duplicate of the list, instead of mapping/assignment
                 
 
-                cell2.innerHTML="<p style='font-size:3vw;'><i>You see "+roomMonster[2]+"</i><br><br>SHIELD — "+roomMonster[0].toString()+"/6<br>LIFE — "+roomMonster[1].toString()+"<br><img src='"+roomMonster[3]+"'></p>";
+                cell2.innerHTML="<p style='font-size:3vw;'><i style='color:red;'>You see "+roomMonster[2]+"</i><br><br>SHIELD — "+roomMonster[0].toString()+"/6<br>LIFE — "+roomMonster[1].toString()+"<br><img src='"+roomMonster[3]+"'></p>";
                 row1.innerHTML = cell1.outerHTML.toString()+cell2.outerHTML.toString();
                 acceptCombatAction=true;
                 cell3.innerHTML="<button id='evade' onclick='evade();'>Evade</button>";
@@ -436,7 +465,7 @@ display: flex;
              }
             else{
             
-            row2.innerHTML="<button onclick='fadein();encounter();'>Enter</button>";
+            row2.innerHTML="<button onclick='fadein();encounter();'>Keep going</button>";
             row1.innerHTML="<p style='margin:100px;'><i style='font-size:0.8em'>Room "+room+"</i><br>"+roomDesc[0]+"</p>";}
             
         }
@@ -461,9 +490,9 @@ display: flex;
         
                     fadein();
                     gametable.style.display='none';
-    var text2 = `<p>Your stats:<br /><span style='color:goldenrod'>GOLD</span> &mdash; Zero for now. Get 10 to win.<br /><br /><span style='color:goldenrod'>SHIELD</span> &mdash; 3/6. Ignore damage from attack rolls up to this number.<br /><br /><span style='color:goldenrod'>LIFE</span> &mdash; 10/10. Once you're down to 0 points, you're too weak to continue</p><button  onclick='fadein();gametext.innerHTML = text3;'>CONTINUE</button>`;
+    var text2 = `<p>Welcome to the Fast Dungeon Festival. Adventurers come from all over to spend the night under the abandoned castle, fighting monsters and collecting gold pieces. You've heard so much about this.<span style='color:goldenrod'><br>Now you're here to join the fun.</span></p><p>Your stats:<br /><span style='color:goldenrod'>GOLD</span> &mdash; Zero for now. Get ${goldToWin.toString()} to win.<br /><br /><span style='color:goldenrod'>SHIELD</span> &mdash; 3/6. Ignore damage from attack rolls up to this number.<br /><br /><span style='color:goldenrod'>LIFE</span> &mdash; 10/10. Once you're down to 0 points, you're too weak to continue.</p><button  onclick='fadein();gametext.innerHTML = text3;'>CONTINUE</button>`;
     
-    var text3 = `<p>A villager blindfolds you and takes you to a spot inside the dungeon. She says, \"Count to ten, and then remove your blindfold. Good luck, <span style='color:goldenrod'>YOURNAMEHERE</span>.\"</p><p>You count and then with shaking hands you remove the blindfold.</p><p>Begin!</p><button  onclick='fadein();gametext.remove();nextLevel();'>START</button>`;
+    var text3 = `<p>A villager blindfolds you and takes you to a spot inside the dungeon. She says, \"Count to ten, and then remove your blindfold. Good luck, <span style='color:goldenrod'>YOURNAMEHERE</span>.\"</p><p>You count and then with shaking hands you remove the blindfold.</p><button  onclick='fadein();gametext.remove();nextLevel();'>Begin!</button>`;
 
     
     </script>
