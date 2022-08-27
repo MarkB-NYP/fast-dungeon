@@ -152,7 +152,7 @@ display: flex;
 
 
 <body>
-    <i style='font-size:0.8em;'>Version 0.5.3</i>
+    <i style='font-size:0.8em;'>Version 0.5.2</i>
     <div class='overlay' id='preloader'></div>
     <div id='gamearea'>
         
@@ -428,7 +428,7 @@ display: flex;
             cell1.innerHTML='<p><i style="font-size:2vw;">'+PlayerName+'</i><br>GOLD — '+gold.toString()+'<br>SHIELD — '+shield.toString()+'/6<br>LIFE — '+life.toString()+'/10<img src="./Resources/Hero1.gif"><p>' //create player stats panel
             roomtype = roll6dice();
             console.log(roomtype);
-            if (roomtype < 4){ //Gold room
+            if (roomtype < 3){ //Gold room
                 roomGold = roll6dice();
                 shuffleArray(goldDesc)
                 row2.innerHTML="<button  onclick='gold+=roomGold;nextLevel();'>Collect gold</button>";
