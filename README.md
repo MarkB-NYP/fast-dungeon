@@ -29,3 +29,7 @@ Game website hosted on [GitHub Pages](https://pages.github.com/).
 
 ## Acknowledgements
 [VT323](https://fonts.google.com/specimen/VT323?query=VT323) font designed by Peter Hull. Provided by Google Fonts.
+
+Special thanks to all playtesters, including:
+[adore_blvnk](https://github.com/adoreblvnk)
+Jong Han
