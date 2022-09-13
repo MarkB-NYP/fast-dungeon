@@ -33,3 +33,6 @@ Game website hosted on [GitHub Pages](https://pages.github.com/).
 Special thanks to all playtesters, including:
 - [adore_blvnk](https://github.com/adoreblvnk)
 - Jong Han
+- Edwin
+- Gabriel
+- Ying Xuan
